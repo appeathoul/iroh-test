@@ -28,3 +28,6 @@ After startup, the following will be generated:
 Switch to a different network domain and use this command to join the network.
 
 Before running, please clear the cache data in the runtime directories: ./client and ./server.
+
+## How to Test
+edit main.rs --- 182 lines
