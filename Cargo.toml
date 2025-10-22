@@ -12,12 +12,12 @@ include = [
 [dependencies]
 anyhow = "1.0.98"
 bytes = "1.10.1"
-iroh = "0.92"
-iroh-docs = { version = "0.92" }
-iroh-blobs = { version = "0.94" }
-iroh-gossip = { version = "0.92" }
-iroh-relay = { version = "0.92" }
-iroh-base = { version = "0.92" }
+iroh = "0.94"
+iroh-docs = { version = "0.94" }
+iroh-blobs = { version = "0.96" }
+iroh-gossip = { version = "0.94" }
+iroh-relay = { version = "0.94" }
+iroh-base = { version = "0.94" }
 
 uuid = { version = "*", features = ["v4"] }
 futures = "0.3.25"
@@ -30,5 +30,5 @@ tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7" }
 clap = { version = "4.5.41", features = ["derive"] }
 url = { version = "2.5", features = ["serde"] }
-rand = "0.8.5"
+rand = "0.9"
 strum = { version = "0.26.1", features = ["derive"] }

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use futures::TryStreamExt;
-use iroh::{RelayMap, RelayNode, SecretKey};
+use iroh::{RelayConfig, RelayMap, SecretKey};
 use iroh_docs::api::Doc;
 use iroh_docs::{Author, AuthorId, DocTicket};
 use iroh_relay::RelayQuicConfig;
@@ -28,12 +28,12 @@ pub fn default_relay_map() -> RelayMap {
 }
 
 /// Get the default [`RelayNode`]
-pub fn default_relay_node() -> RelayNode {
+pub fn default_relay_node() -> RelayConfig {
     // The default CH relay server run by number0.
     let url: Url = format!("https://{DEFAULT_RELAY_HOSTNAME}.:4430")
         .parse()
         .expect("default url");
-    RelayNode {
+    RelayConfig {
         url: url.into(),
         quic: Some(RelayQuicConfig::default()),
     }
@@ -41,7 +41,7 @@ pub fn default_relay_node() -> RelayNode {
 
 /// Generate a new random private key
 pub fn generate_private_key() -> SecretKey {
-    SecretKey::generate(rand::rngs::OsRng)
+    SecretKey::generate(&mut rand::rng())
 }
 
 #[derive(strum::EnumIter, strum::AsRefStr)]

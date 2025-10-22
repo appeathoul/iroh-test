@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use iroh::{RelayMode, Watcher, protocol::Router};
 use iroh_blobs::store::fs::FsStore;
@@ -8,6 +8,7 @@ use crate::default_relay_map;
 #[derive(Clone, Debug)]
 pub struct IrohNet {
     pub router: Router,
+    pub gossip: iroh_gossip::net::Gossip,
     pub blobs_store: FsStore,
     pub docs: iroh_docs::protocol::Docs,
 }
@@ -19,14 +20,13 @@ pub async fn start_server(
     let root = PathBuf::from(iroh_db_path);
     // create endpoint
     let endpoint = iroh::Endpoint::builder()
-        .discovery_n0()
         .secret_key(secret_key)
         .relay_mode(RelayMode::Custom(default_relay_map()))
         .bind()
         .await?;
 
-    // ensure relay is initialized
-    endpoint.home_relay().initialized().await;
+    // // ensure relay is initialized
+    // endpoint.home_relay().initialized().await;
 
     // add iroh gossip
     let gossip = iroh_gossip::net::Gossip::builder().spawn(endpoint.clone());
@@ -34,7 +34,7 @@ pub async fn start_server(
     // add iroh blobs
     let store = FsStore::load(&root).await?;
 
-    let blobs = iroh_blobs::BlobsProtocol::new(&store, endpoint.clone(), None);
+    let blobs = iroh_blobs::BlobsProtocol::new(&store, None);
 
     // add iroh docs
     let docs = iroh_docs::protocol::Docs::persistent(root.to_owned())
@@ -43,7 +43,7 @@ pub async fn start_server(
 
     // build the protocol router
     let builder = iroh::protocol::Router::builder(endpoint.clone())
-        .accept(iroh_gossip::ALPN, gossip)
+        .accept(iroh_gossip::ALPN, Arc::new(gossip.clone()))
         .accept(iroh_blobs::ALPN, blobs)
         .accept(iroh_docs::ALPN, docs.clone());
 
@@ -51,6 +51,7 @@ pub async fn start_server(
 
     let iroh_net = IrohNet {
         router,
+        gossip,
         blobs_store: store,
         docs,
     };

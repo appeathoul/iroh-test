@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use iroh::protocol::DynProtocolHandler;
 use iroh_test::get_images_directory;
 use iroh_test::store::{IrohProperties, load_images_to_resources};
 use iroh_test::{generate_private_key, server::start_server, store::create_files};
@@ -176,8 +177,18 @@ async fn main() -> anyhow::Result<()> {
                     )
                 })?;
             }
+            let client_src1 = PathBuf::from(&storage_path).join("client1");
+            if !client_src1.exists() {
+                fs::create_dir_all(&client_src1).await.with_context(|| {
+                    format!(
+                        "Failed to create client storage directory: {:?}",
+                        client_src1
+                    )
+                })?;
+            }
 
             let client_path = client_src.to_string_lossy().into_owned();
+            let client_path1 = client_src1.to_string_lossy().into_owned();
 
             // If you want to restart the client with a new connection, uncomment the following lines to stop the previous instance
             // But it cause some issue
@@ -185,10 +196,10 @@ async fn main() -> anyhow::Result<()> {
 
             // let iroh_net = start_server(iroh_secret_key.clone(), client_path.clone()).await?;
 
-            // sleep(Duration::from_secs(1)).await;
             // iroh_net.router.shutdown().await?;
+            // sleep(Duration::from_secs(1)).await;
 
-            let iroh_net1 = start_server(iroh_secret_key, client_path).await?;
+            let iroh_net1 = start_server(iroh_secret_key, client_path1).await?;
 
             let mut tickets = std::collections::HashMap::new();
             tickets.insert("node".to_string(), node_ticket.parse()?);
